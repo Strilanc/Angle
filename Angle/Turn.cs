@@ -9,7 +9,7 @@ namespace Angle {
     /// The 'delta' in the affine space of angles.
     /// </summary>
     [DebuggerDisplay("{ToString()}")]
-    public struct Turn : IEquatable<Turn>, IComparable<Turn> {
+    public struct Turn : IEquatable<Turn> {
         ///<summary>The identity rotation.</summary>
         public static readonly Turn Zero = default(Turn);
         ///<summary>1 complete counter clockwise rotation.</summary>
@@ -170,14 +170,29 @@ namespace Angle {
         /// For example, a full clockwise rotation is not equivalent to no rotation.
         /// Use one of the 'SmallestX' methods if you want to remove ambiguities based on rotation count.
         /// </summary>
+        /// <param name="other">The turn to compare against.</param>
+        /// <param name="tolerance">
+        /// The maximum difference between the compared turns.
+        /// Can be clockwise or counter-clockwise (-tolerance has the same effect as +tolerance).
+        /// </param>
         [Pure]
         public bool Equals(Turn other, Turn tolerance) {
             return !(this - other).IsMoreRotationThan(tolerance);
         }
-        ///<summary>Compares the two given rotations, with "more counter-clockwise" corresponding to "larger".</summary>
-        public int CompareTo(Turn other) {
-            return this._radians.CompareTo(other._radians);
+        /// <summary>
+        /// Determines if the effect of the given turn is equivalent or close to the effect of this turn, within some tolerance.
+        /// For example, a quarter turn clockwise is congruent to a three-quarters turn counter-clockwise.
+        /// </summary>
+        /// <param name="other">The turn to compare against.</param>
+        /// <param name="tolerance">
+        /// The maximum difference between the rotating effects of the compared turns.
+        /// Can be clockwise or counter-clockwise (-tolerance has the same effect as +tolerance).
+        /// </param>
+        [Pure]
+        public bool IsCongruentTo(Turn other, Turn tolerance = default(Turn)) {
+            return !(this - other).SmallestSignedEquivalent().IsMoreRotationThan(tolerance);
         }
+
         public override bool Equals(object obj) {
             return obj is Turn && Equals((Turn)obj);
         }

@@ -25,8 +25,8 @@ public class TurnTest {
                 var g2 = r[j];
                 foreach (var e1 in g1) {
                     foreach (var e2 in g2) {
-                        Assert.AreEqual(e1.CompareTo(e2), Turn.CounterClockwiseComparer.Compare(e1, e2));
-                        Assert.AreEqual(e2.CompareTo(e1), Turn.ClockwiseComparer.Compare(e1, e2));
+                        Assert.AreEqual(i.CompareTo(j), Turn.CounterClockwiseComparer.Compare(e1, e2));
+                        Assert.AreEqual(j.CompareTo(i), Turn.ClockwiseComparer.Compare(e1, e2));
                         Assert.AreEqual(Math.Abs(e1.NaturalAngle).CompareTo(Math.Abs(e2.NaturalAngle)), Turn.AbsoluteRotationComparer.Compare(e1, e2));
                         Assert.AreEqual(Math.Abs(e1.NaturalAngle) > Math.Abs(e2.NaturalAngle), e1.IsMoreRotationThan(e2));
                         Assert.AreEqual(i < j, e1.IsMoreClockwiseThan(e2));
@@ -36,7 +36,6 @@ public class TurnTest {
                         Assert.AreEqual(i == j, e1.Equals(e2));
                         Assert.AreEqual(i == j, e1.Equals(e2, Turn.FromNaturalAngle(0.001)));
                         Assert.AreEqual(i == j, e1.Equals((object)e2));
-                        Assert.AreEqual(i.CompareTo(j), e1.CompareTo(e2));
                         Assert.IsTrue(i != j || e1.GetHashCode() == e2.GetHashCode());
                     }
                 }
@@ -50,6 +49,33 @@ public class TurnTest {
         Assert.IsTrue(Turn.FromNaturalAngle(3).Equals(Turn.FromNaturalAngle(3.5), Turn.FromNaturalAngle(0.5)));
         Assert.IsTrue(!Turn.FromNaturalAngle(3).Equals(Turn.FromNaturalAngle(3.5), Turn.FromNaturalAngle(0.1)));
         Assert.IsTrue(!Turn.FromNaturalAngle(3).Equals(Turn.FromNaturalAngle(4), Turn.FromNaturalAngle(0.5)));
+    }
+    [TestMethod]
+    public void Congruence() {
+        // exact
+        var r = new[] {
+            new[] {Turn.OneTurnClockwise, Turn.OneTurnCounterClockwise, Turn.Zero},
+            new[] {Turn.OneTurnClockwise / 2, Turn.OneTurnCounterClockwise / 2},
+            new[] {Turn.OneDegreeClockwise, Turn.OneDegreeCounterClockwise * 359},
+            new[] {Turn.OneRadianClockwise},
+        };
+        for (var i = 0; i < r.Length; i++) {
+            var g1 = r[i];
+            for (var j = 0; j < r.Length; j++) {
+                var g2 = r[j];
+                foreach (var e1 in g1) {
+                    foreach (var e2 in g2) {
+                        Assert.AreEqual(i == j, e1.IsCongruentTo(e2));
+                    }
+                }
+            }
+        }
+
+        // approximate
+        Assert.IsTrue(!(Turn.OneTurnClockwise * 0.1).IsCongruentTo(Turn.OneTurnClockwise * 0.0999));
+        Assert.IsTrue((Turn.OneTurnClockwise * 0.1).IsCongruentTo(Turn.OneTurnClockwise * 0.0999, Turn.OneTurnClockwise * 0.01));
+        Assert.IsTrue(Turn.OneDegreeClockwise.IsCongruentTo(Turn.OneDegreeCounterClockwise, Turn.OneDegreeClockwise * 2));
+        Assert.IsTrue(Turn.OneDegreeClockwise.IsCongruentTo(Turn.OneDegreeCounterClockwise, Turn.OneDegreeCounterClockwise * 2));
     }
     [TestMethod]
     public void NaturalAngle() {
