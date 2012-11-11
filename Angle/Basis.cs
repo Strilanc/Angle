@@ -36,7 +36,7 @@ namespace Angle {
             if (double.IsInfinity(unitsPerTurn)) throw new ArgumentOutOfRangeException("unitsPerTurn", "unitsPerTurn is infinite");
             var sign = isClockwisePositive ? -1 : +1;
             var factor = RadiansPerRotation / unitsPerTurn;
-            return new Basis(origin.NaturalAngle, sign * factor);
+            return new Basis(origin.UnsignedNaturalAngle, sign * factor);
         }
 
         ///<summary>The angle, in the natural basis, where the origin (zero) of this basis is located.</summary>
@@ -51,7 +51,9 @@ namespace Angle {
         ///<summary>Returns the direction corresponding to the given angle in this basis.</summary>
         [Pure]
         public Dir AngleToDir(double angle) {
-            return Dir.FromAngle(angle, this);
+            if (double.IsNaN(angle)) throw new ArgumentOutOfRangeException("angle", "angle is NaN");
+            if (double.IsInfinity(angle)) throw new ArgumentOutOfRangeException("angle", "angle is infinite");
+            return Dir.FromNaturalAngle(Origin + angle * CounterClockwiseRadiansPerUnit);
         }
         ///<summary>Returns the turn corresponding to a rotation by the given angle in this basis.</summary>
         [Pure]
@@ -60,8 +62,15 @@ namespace Angle {
         }
         ///<summary>Returns the smallest non-negative angle corresponding to the given direction in this basis.</summary>
         [Pure]
-        public double DirToAngle(Dir direction) {
-            return direction.GetAngle(this);
+        public double DirToUnsignedAngle(Dir direction) {
+            var r = (direction.UnsignedNaturalAngle - Origin) / CounterClockwiseRadiansPerUnit;
+            return r.ProperMod(Math.Abs(UnitsPerCounterClockwiseTurn));
+        }
+        ///<summary>Returns the smallest positive or negative angle corresponding to the given direction in this basis.</summary>
+        [Pure]
+        public double DirToSignedAngle(Dir direction) {
+            var r = (direction.UnsignedNaturalAngle - Origin) / CounterClockwiseRadiansPerUnit;
+            return r.DifMod(Math.Abs(UnitsPerCounterClockwiseTurn));
         }
         ///<summary>Returns the angle corresponding to a rotation by the given turn in this basis.</summary>
         [Pure]
@@ -70,7 +79,7 @@ namespace Angle {
         }
 
         public override string ToString() {
-            var positiveDir = IsClockwisePositive ? "Clockwise" : "Counterclockwise";
+            var positiveDir = IsClockwisePositive ? "clockwise" : "counterclockwise";
             var unitsPerTurn = Math.Abs(UnitsPerCounterClockwiseTurn);
             var unit = Math.Abs(unitsPerTurn - RadiansPerRotation) <= 0.000001 ? "Radians"
                      : Math.Abs(unitsPerTurn - DegreesPerRotation) <= 0.000001 ? "Degrees"
@@ -78,7 +87,7 @@ namespace Angle {
                      : Math.Abs(unitsPerTurn - 1) <= 0.000001 ? "Turns"
                      : String.Format("{0:0.###}/Turn", unitsPerTurn);
             return String.Format(
-                "Unit: {0} ({1}), Zero: ({2})",
+                "Unit: {0} ({1}), Zero: {2}",
                 unit,
                 positiveDir,
                 Dir.FromNaturalAngle(_origin));

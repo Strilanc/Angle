@@ -19,7 +19,7 @@ namespace Angle {
         private readonly Turn _span;
         private Range(Dir start, Turn span) {
             this._start = start;
-            this._span = span <= Turn.OneTurnCounterClockwise ? span : Turn.OneTurnCounterClockwise;
+            this._span = span.IsMoreCounterClockwiseThan(Turn.OneTurnCounterClockwise) ? Turn.OneTurnCounterClockwise : span;
         }
 
         /// <summary>
@@ -32,7 +32,7 @@ namespace Angle {
         }
         ///<summary>Returns a range corresponding to the directions that can be reached by starting from the given center direction and turning up to the given maximum (in either direction).</summary>
         public static Range FromCenterAndMaxDeviation(Dir center, Turn absMaxDeviation) {
-            var d = absMaxDeviation.Abs();
+            var d = absMaxDeviation.AbsCounterClockwise();
             return new Range(center - d, d * 2);
         }
         /// <summary>
@@ -81,7 +81,7 @@ namespace Angle {
         ///<summary>Determines if a given direction is in this range.</summary>
         [Pure]
         public bool Contains(Dir direction) {
-            return (direction - _start).SmallestCounterClockwiseEquivalent() <= _span;
+            return !(direction - _start).SmallestCounterClockwiseEquivalent().IsMoreCounterClockwiseThan(_span);
         }
         ///<summary>Returns the clockwise or counter-clockwise side of this range, depending on the given parameter.</summary>
         [Pure]
@@ -92,8 +92,8 @@ namespace Angle {
         [Pure]
         public Dir Clamp(Dir direction) {
             var d = (direction - Center).SmallestSignedEquivalent();
-            if (d.Abs() <= _span / 2) return direction;
-            return Side(d < Turn.Zero);
+            if (!d.IsMoreRotationThan(_span / 2)) return direction;
+            return Side(d.IsClockwise);
         }
 
         ///<summary>Rotates the given range by the given turn.</summary>
@@ -133,7 +133,7 @@ namespace Angle {
             }
         }
         public override string ToString() {
-            return String.Format("Span: {1:0.###} turns, Center: ({0})", Center, Math.Abs(Span / Turn.OneTurnCounterClockwise));
+            return String.Format("Span: {1:0.###} turns, Center: {0}", Center, Math.Abs(Span / Turn.OneTurnCounterClockwise));
         }
     }
 }

@@ -15,8 +15,16 @@ public class BasisTest {
         var eps = Turn.OneTurnClockwise * 0.00001;
         Assert.IsTrue(basis.AngleToDir(angle).Equals(dir, eps));
         Assert.IsTrue(Dir.FromAngle(angle, basis).Equals(dir, eps));
-        Assert.AreEqual(basis.DirToAngle(dir), angle, 0.00001);
-        Assert.AreEqual(dir.GetAngle(basis), angle, 0.00001);
+        Assert.AreEqual(basis.DirToUnsignedAngle(dir), angle, 0.00001);
+        Assert.AreEqual(dir.GetUnsignedAngle(basis), angle, 0.00001);
+        
+        var u = Math.Abs(basis.UnitsPerCounterClockwiseTurn);
+        var s = angle * 2 >= u ? angle - u : angle;
+        var r = basis.DirToSignedAngle(dir);
+        Assert.AreEqual(r, dir.GetSignedAngle(basis));
+        if ((Math.Abs(s - u / 2) > 0.01 || Math.Abs(r + u / 2) > 0.01) && (Math.Abs(s + u / 2) > 0.01 || Math.Abs(r - u / 2) > 0.01)) {
+            Assert.AreEqual(r, s, 0.00001);
+        }
     }
 
     [TestMethod]
@@ -32,8 +40,10 @@ public class BasisTest {
 
         // GetAngle corresponds to GetNaturalAngle
         foreach (var e in new[] { Dir.AlongNegativeX, Dir.AlongNegativeY, Dir.AlongPositiveX, Dir.AlongPositiveY }) {
-            Assert.IsTrue(e.NaturalAngle == e.GetAngle(Basis.Natural));
-            Assert.IsTrue(e.NaturalAngle == Basis.Natural.DirToAngle(e));
+            Assert.IsTrue(e.UnsignedNaturalAngle == e.GetUnsignedAngle(Basis.Natural));
+            Assert.IsTrue(e.SignedNaturalAngle == e.GetSignedAngle(Basis.Natural));
+            Assert.IsTrue(e.UnsignedNaturalAngle == Basis.Natural.DirToUnsignedAngle(e));
+            Assert.IsTrue(e.SignedNaturalAngle == Basis.Natural.DirToSignedAngle(e));
         }
         foreach (var e in new[] { Turn.OneDegreeClockwise, Turn.OneGradianClockwise, Turn.OneRadianClockwise, Turn.OneTurnClockwise, Turn.Zero }) {
             Assert.IsTrue(e.NaturalAngle == e.GetAngle(Basis.Natural));

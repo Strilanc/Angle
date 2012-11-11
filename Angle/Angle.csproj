@@ -39,6 +39,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="InternalUtil.cs" />
     <Compile Include="Range.cs" />
     <Compile Include="Basis.cs" />
     <Compile Include="Dir.cs" />

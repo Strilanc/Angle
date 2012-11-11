@@ -15,10 +15,15 @@ public class DirTest {
         Assert.AreEqual(Dir.AlongNegativeY.UnitX, 0, 0.0001);
         Assert.AreEqual(Dir.AlongNegativeY.UnitY, -1, 0.0001);
         
-        Assert.AreEqual(Dir.AlongPositiveX.NaturalAngle, 0, 0.0001);
-        Assert.AreEqual(Dir.AlongPositiveY.NaturalAngle, Math.PI/2, 0.0001);
-        Assert.AreEqual(Dir.AlongNegativeX.NaturalAngle, Math.PI, 0.0001);
-        Assert.AreEqual(Dir.AlongNegativeY.NaturalAngle, 3*Math.PI/2, 0.0001);
+        Assert.AreEqual(Dir.AlongPositiveX.UnsignedNaturalAngle, 0, 0.0001);
+        Assert.AreEqual(Dir.AlongPositiveY.UnsignedNaturalAngle, Math.PI / 2, 0.0001);
+        Assert.AreEqual(Dir.AlongNegativeX.UnsignedNaturalAngle, Math.PI, 0.0001);
+        Assert.AreEqual(Dir.AlongNegativeY.UnsignedNaturalAngle, 3 * Math.PI / 2, 0.0001);
+
+        Assert.AreEqual(Dir.AlongPositiveX.SignedNaturalAngle, 0, 0.0001);
+        Assert.AreEqual(Dir.AlongPositiveY.SignedNaturalAngle, Math.PI / 2, 0.0001);
+        Assert.AreEqual(Dir.AlongNegativeX.SignedNaturalAngle, -Math.PI, 0.0001);
+        Assert.AreEqual(Dir.AlongNegativeY.SignedNaturalAngle, -Math.PI / 2, 0.0001);
     }
     [TestMethod]
     public void Equality() {
@@ -57,13 +62,13 @@ public class DirTest {
     }
     [TestMethod]
     public void NaturalAngle() {
-        Assert.AreEqual(Dir.AlongNegativeX.NaturalAngle, Basis.RadiansPerRotation/2, 0.0001);
-        Assert.AreEqual(Dir.AlongNegativeY.NaturalAngle, Basis.RadiansPerRotation * 3 / 4, 0.0001);
-        Assert.AreEqual(Dir.AlongPositiveX.NaturalAngle, 0, 0.0001);
-        Assert.AreEqual(Dir.AlongPositiveY.NaturalAngle, Basis.RadiansPerRotation / 4, 0.0001);
-        Assert.AreEqual(Dir.FromNaturalAngle(7).NaturalAngle, 7 - Basis.RadiansPerRotation, 0.0001);
-        Assert.AreEqual(Dir.FromNaturalAngle(4).NaturalAngle, 4, 0.0001);
-        Assert.AreEqual(Dir.FromNaturalAngle(-1).NaturalAngle, -1 + Basis.RadiansPerRotation, 0.0001);
+        Assert.AreEqual(Dir.FromNaturalAngle(7).UnsignedNaturalAngle, 7 - Basis.RadiansPerRotation, 0.0001);
+        Assert.AreEqual(Dir.FromNaturalAngle(4).UnsignedNaturalAngle, 4, 0.0001);
+        Assert.AreEqual(Dir.FromNaturalAngle(-1).UnsignedNaturalAngle, -1 + Basis.RadiansPerRotation, 0.0001);
+        
+        Assert.AreEqual(Dir.FromNaturalAngle(7).SignedNaturalAngle, 7 - Basis.RadiansPerRotation, 0.0001);
+        Assert.AreEqual(Dir.FromNaturalAngle(4).SignedNaturalAngle, 4 - Basis.RadiansPerRotation, 0.0001);
+        Assert.AreEqual(Dir.FromNaturalAngle(-1).SignedNaturalAngle, -1, 0.0001);
     }
     [TestMethod]
     public void Arithmetic() {
@@ -81,21 +86,21 @@ public class DirTest {
     [TestMethod]
     public void Vector() {
         // cardinal directions
-        Assert.AreEqual(Dir.FromVector(1, 0).NaturalAngle, 0, 0.0001);
-        Assert.AreEqual(Dir.FromVector(0, 1).NaturalAngle, Math.PI / 2, 0.0001);
-        Assert.AreEqual(Dir.FromVector(-1, 0).NaturalAngle, Math.PI, 0.0001);
-        Assert.AreEqual(Dir.FromVector(0, -1).NaturalAngle, 3 * Math.PI / 2, 0.0001);
-        Assert.AreEqual(Dir.FromVector(1, 1).NaturalAngle, Math.PI / 4, 0.0001);
+        Assert.AreEqual(Dir.FromVector(1, 0).UnsignedNaturalAngle, 0, 0.0001);
+        Assert.AreEqual(Dir.FromVector(0, 1).UnsignedNaturalAngle, Math.PI / 2, 0.0001);
+        Assert.AreEqual(Dir.FromVector(-1, 0).UnsignedNaturalAngle, Math.PI, 0.0001);
+        Assert.AreEqual(Dir.FromVector(0, -1).UnsignedNaturalAngle, 3 * Math.PI / 2, 0.0001);
+        Assert.AreEqual(Dir.FromVector(1, 1).UnsignedNaturalAngle, Math.PI / 4, 0.0001);
 
         // single infinities are fine
-        Assert.AreEqual(Dir.FromVector(double.PositiveInfinity, 0).NaturalAngle, 0, 0.0001);
-        Assert.AreEqual(Dir.FromVector(double.PositiveInfinity, 0).NaturalAngle, 0, 0.0001);
-        Assert.AreEqual(Dir.FromVector(double.NegativeInfinity, 1).NaturalAngle, Math.PI, 0.0001);
-        Assert.AreEqual(Dir.FromVector(double.NegativeInfinity, 1).NaturalAngle, Math.PI, 0.0001);
-        Assert.AreEqual(Dir.FromVector(0, double.PositiveInfinity).NaturalAngle, Math.PI / 2, 0.0001);
-        Assert.AreEqual(Dir.FromVector(0, double.PositiveInfinity).NaturalAngle, Math.PI / 2, 0.0001);
-        Assert.AreEqual(Dir.FromVector(1, double.NegativeInfinity).NaturalAngle, 3*Math.PI / 2, 0.0001);
-        Assert.AreEqual(Dir.FromVector(1, double.NegativeInfinity).NaturalAngle, 3 * Math.PI / 2, 0.0001);
+        Assert.AreEqual(Dir.FromVector(double.PositiveInfinity, 0).UnsignedNaturalAngle, 0, 0.0001);
+        Assert.AreEqual(Dir.FromVector(double.PositiveInfinity, 0).UnsignedNaturalAngle, 0, 0.0001);
+        Assert.AreEqual(Dir.FromVector(double.NegativeInfinity, 1).UnsignedNaturalAngle, Math.PI, 0.0001);
+        Assert.AreEqual(Dir.FromVector(double.NegativeInfinity, 1).UnsignedNaturalAngle, Math.PI, 0.0001);
+        Assert.AreEqual(Dir.FromVector(0, double.PositiveInfinity).UnsignedNaturalAngle, Math.PI / 2, 0.0001);
+        Assert.AreEqual(Dir.FromVector(0, double.PositiveInfinity).UnsignedNaturalAngle, Math.PI / 2, 0.0001);
+        Assert.AreEqual(Dir.FromVector(1, double.NegativeInfinity).UnsignedNaturalAngle, 3 * Math.PI / 2, 0.0001);
+        Assert.AreEqual(Dir.FromVector(1, double.NegativeInfinity).UnsignedNaturalAngle, 3 * Math.PI / 2, 0.0001);
 
         // invalid cases
         AssertThrows<ArgumentException>(() => Dir.FromVector(0, 0));
@@ -105,37 +110,6 @@ public class DirTest {
         AssertThrows<ArgumentException>(() => Dir.FromVector(double.PositiveInfinity, double.NegativeInfinity));
         AssertThrows<ArgumentException>(() => Dir.FromVector(double.NegativeInfinity, double.PositiveInfinity));
         AssertThrows<ArgumentException>(() => Dir.FromVector(double.PositiveInfinity, double.NegativeInfinity));
-    }
-    [TestMethod]
-    public void SmallestEquivalent() {
-        Assert.IsTrue(Turn.Zero.Equals(Turn.OneTurnClockwise.SmallestClockwiseEquivalent()));
-        Assert.IsTrue(Turn.Zero.Equals(Turn.OneTurnClockwise.SmallestCounterClockwiseEquivalent()));
-        Assert.IsTrue(Turn.Zero.Equals(Turn.OneTurnClockwise.SmallestSignedEquivalent()));
-
-        Assert.IsTrue(Turn.Zero.Equals(Turn.OneTurnCounterClockwise.SmallestClockwiseEquivalent()));
-        Assert.IsTrue(Turn.Zero.Equals(Turn.OneTurnCounterClockwise.SmallestCounterClockwiseEquivalent()));
-        Assert.IsTrue(Turn.Zero.Equals(Turn.OneTurnCounterClockwise.SmallestSignedEquivalent()));
-
-        var eps = Turn.FromNaturalAngle(0.0001);
-        Assert.IsFalse(Turn.FromNaturalAngle(1).Equals(Turn.FromNaturalAngle(1 + Basis.RadiansPerRotation).SmallestClockwiseEquivalent(), eps));
-        Assert.IsTrue(Turn.FromNaturalAngle(1).Equals(Turn.FromNaturalAngle(1 + Basis.RadiansPerRotation).SmallestCounterClockwiseEquivalent(), eps));
-        Assert.IsTrue(Turn.FromNaturalAngle(1).Equals(Turn.FromNaturalAngle(1 + Basis.RadiansPerRotation).SmallestSignedEquivalent(), eps));
-
-        Assert.IsTrue(Turn.FromNaturalAngle(-1).Equals(Turn.FromNaturalAngle(-1 + Basis.RadiansPerRotation).SmallestClockwiseEquivalent(), eps));
-        Assert.IsFalse(Turn.FromNaturalAngle(-1).Equals(Turn.FromNaturalAngle(-1 + Basis.RadiansPerRotation).SmallestCounterClockwiseEquivalent(), eps));
-        Assert.IsTrue(Turn.FromNaturalAngle(-1).Equals(Turn.FromNaturalAngle(-1 + Basis.RadiansPerRotation).SmallestSignedEquivalent(), eps));
-    }
-    [TestMethod]
-    public void Abs() {
-        Assert.IsTrue(Turn.Zero.Abs() == Turn.Zero);
-        Assert.IsTrue(Turn.OneTurnCounterClockwise.Abs() == Turn.OneTurnCounterClockwise);
-        Assert.IsTrue(Turn.OneTurnClockwise.Abs() == Turn.OneTurnCounterClockwise);
-    }
-    [TestMethod]
-    public void Sign() {
-        Assert.IsTrue(Turn.Zero.Sign() == 0);
-        Assert.IsTrue(Turn.OneTurnCounterClockwise.Sign() == +1);
-        Assert.IsTrue(Turn.OneTurnClockwise.Sign() == -1);
     }
     [TestMethod]
     public void ToStringWorks() {

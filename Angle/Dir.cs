@@ -23,9 +23,7 @@ namespace Angle {
         private Dir(double radians) {
             if (double.IsNaN(radians)) throw new ArgumentOutOfRangeException("radians", "radians is NaN");
             if (double.IsInfinity(radians)) throw new ArgumentOutOfRangeException("radians", "radians is infinite");
-            radians %= Basis.RadiansPerRotation;
-            if (radians < 0) radians += Basis.RadiansPerRotation;
-            this._radians = radians;
+            this._radians = radians.ProperMod(Basis.RadiansPerRotation);
         }
         /// <summary>
         /// Returns the direction corresponding to the given angle in the natural basis.
@@ -44,9 +42,7 @@ namespace Angle {
         }
         ///<summary>Returns the direction corresponding to the given angle in the given basis.</summary>
         public static Dir FromAngle(double angle, Basis basis) {
-            if (double.IsNaN(angle)) throw new ArgumentOutOfRangeException("angle", "angle is NaN");
-            if (double.IsInfinity(angle)) throw new ArgumentOutOfRangeException("angle", "angle is infinite");
-            return FromNaturalAngle(basis.Origin + angle*basis.CounterClockwiseRadiansPerUnit);
+            return basis.AngleToDir(angle);
         }
 
         ///<summary>The X component of the unit vector pointing along this direction.</summary>
@@ -54,20 +50,30 @@ namespace Angle {
         ///<summary>The Y component of the unit vector pointing along this direction.</summary>
         public double UnitY { get { return Math.Sin(_radians); } }
         /// <summary>
-        /// Returns the angle of this direction in the natural basis.
+        /// Returns the smallest equivalent non-negative angle corresponding to this direction in the natural basis.
         /// Example: The direction from the origin to point (1, 0) has a natural angle of 0.
         /// Example: The direction from the origin to point (0, 1) has a natural angle of pi/2.
+        /// Example: The direction from the origin to point (0, -1) has an unsigned natural angle of 3*pi/2.
         /// </summary>
-        public double NaturalAngle { get { return _radians; } }
+        public double UnsignedNaturalAngle { get { return _radians; } }
+        /// <summary>
+        /// Returns the smallest equivalent negative or positive angle corresponding to this direction in the natural basis.
+        /// Example: The direction from the origin to point (1, 0) has a natural angle of 0.
+        /// Example: The direction from the origin to point (0, 1) has a natural angle of pi/2.
+        /// Example: The direction from the origin to point (0, -1) has a signed natural angle of -pi/2.
+        /// </summary>
+        public double SignedNaturalAngle { get { return _radians.DifMod(Basis.RadiansPerRotation); } }
         ///<summary>Returns the smallest non-negative angle corresponding to this direction in the given basis.</summary>
         [Pure]
-        public double GetAngle(Basis basis) {
-            var r = (NaturalAngle - basis.Origin)/basis.CounterClockwiseRadiansPerUnit;
-            var x = Math.Abs(basis.UnitsPerCounterClockwiseTurn);
-            r %= x;
-            if (r < 0) r += x;
-            return r;
+        public double GetUnsignedAngle(Basis basis) {
+            return basis.DirToUnsignedAngle(this);
         }
+        ///<summary>Returns the smallest positive or negative angle corresponding to this direction in the given basis.</summary>
+        [Pure]
+        public double GetSignedAngle(Basis basis) {
+            return basis.DirToSignedAngle(this);
+        }
+        
         ///<summary>Forces this direction to be inside the given range, rotating it by as little as possible.</summary>
         [Pure]
         public Dir ClampedInside(Range range) {
@@ -84,7 +90,7 @@ namespace Angle {
         }
         ///<summary>Returns the turn necessary to rotate from the second given direction to the first given direction.</summary>
         public static Turn operator -(Dir direction1, Dir direction2) {
-            return Turn.FromNaturalAngle(direction1.NaturalAngle - direction2.NaturalAngle);
+            return Turn.FromNaturalAngle(direction1._radians - direction2._radians);
         }
 
         ///<summary>Determines if two directions are equivalent.</summary>
@@ -111,7 +117,7 @@ namespace Angle {
             return _radians.GetHashCode();
         }
         public override string ToString() {
-            return String.Format("Towards: <{1:0.###}, {2:0.###}>, Natural Angle: {0:0.###}", _radians, UnitX, UnitY);
+            return String.Format("Towards <{0:0.###}, {1:0.###}>", UnitX, UnitY);
         }
     }
 }

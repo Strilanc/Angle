@@ -1,10 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.Contracts;
 
 namespace Angle {
     /// <summary>
-    /// A rotation.
+    /// An amount to rotate by.
     /// The 'delta' in the affine space of angles.
     /// </summary>
     [DebuggerDisplay("{ToString()}")]
@@ -29,6 +30,16 @@ namespace Angle {
         ///<summary>1/400'th of a clockwise rotation.</summary>
         public static readonly Turn OneGradianClockwise = -OneGradianCounterClockwise;
 
+        ///<summary>A comparer that considers turns that are more counter-clockwise to be larger.</summary>
+        public static readonly IComparer<Turn> CounterClockwiseComparer = new InternalUtil.AnonymousComparer<Turn>(
+            (e1, e2) => e1._radians.CompareTo(e2._radians));
+        ///<summary>A comparer that considers turns that are more clockwise to be larger.</summary>
+        public static readonly IComparer<Turn> ClockwiseComparer = new InternalUtil.AnonymousComparer<Turn>(
+            (e1, e2) => (-e1._radians).CompareTo(-e2._radians));
+        ///<summary>A comparer that considers turns that involve more rotation, whether clockwise or counter-clockwise, to be larger.</summary>
+        public static readonly IComparer<Turn> AbsoluteRotationComparer = new InternalUtil.AnonymousComparer<Turn>(
+            (e1, e2) => Math.Abs(e1._radians).CompareTo(Math.Abs(e2._radians)));
+        
         private readonly double _radians;
         private Turn(double radians) {
             if (double.IsNaN(radians)) throw new ArgumentOutOfRangeException("radians", "radians is NaN");
@@ -54,34 +65,27 @@ namespace Angle {
         ///<summary>The smallest turn (by magnitude) with an equivalent effect on directions.</summary>
         [Pure]
         public Turn SmallestSignedEquivalent() {
-            var r = this % OneTurnCounterClockwise;
-            if (r*2 <= -OneTurnCounterClockwise) r += OneTurnCounterClockwise;
-            if (r*2 > OneTurnCounterClockwise) r -= OneTurnCounterClockwise;
-            return r;
+            return new Turn(_radians.DifMod(Basis.RadiansPerRotation));
         }
         ///<summary>The smallest counter-clockwise turn with an equivalent effect on directions.</summary>
         [Pure]
         public Turn SmallestCounterClockwiseEquivalent() {
-            var r = this % OneTurnCounterClockwise;
-            if (r < Zero) r += OneTurnCounterClockwise;
-            return r;
+            return new Turn(_radians.ProperMod(Basis.RadiansPerRotation));
         }
         ///<summary>The smallest clockwise turn with an equivalent effect on directions.</summary>
         [Pure]
         public Turn SmallestClockwiseEquivalent() {
-            var r = -this % OneTurnCounterClockwise;
-            if (r < Zero) r += OneTurnCounterClockwise;
-            return -r;
+            return new Turn(-(-_radians).ProperMod(Basis.RadiansPerRotation));
         }
         ///<summary>Returns a counter-clockwise rotation with the same magnitude.</summary>
         [Pure]
-        public Turn Abs() {
-            return this >= Zero ? this : -this;
+        public Turn AbsCounterClockwise() {
+            return _radians >= 0 ? this : -this;
         }
-        ///<summary>Returns -1,0, or +1 based on  the rotation being clockwise, zero, or counter-clockwise respectively.</summary>
+        ///<summary>Returns a clockwise rotation with the same magnitude.</summary>
         [Pure]
-        public int Sign() {
-            return Math.Sign(this.CompareTo(Zero));
+        public Turn AbsClockwise() {
+            return _radians <= 0 ? this : -this;
         }
 
         ///<summary>Returns a turn equivalent to applying both given turns.</summary>
@@ -112,30 +116,27 @@ namespace Angle {
         public static double operator /(Turn turn1, Turn turn2) {
             return turn1._radians/turn2._radians;
         }
-        /// <summary>
-        /// Returns the remainder left from dividing the first given turn by the second.
-        /// Uses the standard C# rules for signs, with counter clockwise turns being considered positive.
-        /// </summary>
-        public static Turn operator %(Turn turn, Turn divisor) {
-            return new Turn(turn._radians%divisor._radians);
+        ///<summary>Determines if this turn represents a positive counter-clockwise rotation.</summary>
+        public bool IsCounterClockwise { get { return _radians > 0; } }
+        ///<summary>Determines if this turn represents a positive clockwise rotation.</summary>
+        public bool IsClockwise { get { return _radians < 0; } }
+
+        ///<summary>Determines if this turn represents more clockwise (fewer counter-clockwise) rotations than the given turn.</summary>
+        [Pure]
+        public bool IsMoreClockwiseThan(Turn other) {
+            return _radians < other._radians;
+        }
+        ///<summary>Determines if this turn represents more counter-clockwise (fewer clockwise) rotations than the given turn.</summary>
+        [Pure]
+        public bool IsMoreCounterClockwiseThan(Turn other) {
+            return _radians > other._radians;
+        }
+        ///<summary>Determines if this turn represents more absolute rotation, either clockwise or counter-clockwise, than the given turn.</summary>
+        [Pure]
+        public bool IsMoreRotationThan(Turn other) {
+            return Math.Abs(_radians) > Math.Abs(other._radians);
         }
 
-        ///<summary>Determines if one turn is a greater counter-clockwise rotation than another.</summary>
-        public static bool operator >(Turn turn1, Turn turn2) {
-            return turn1._radians > turn2._radians;
-        }
-        ///<summary>Determines if one turn is a lesser counter-clockwise rotation than another.</summary>
-        public static bool operator <(Turn turn1, Turn turn2) {
-            return turn1._radians < turn2._radians;
-        }
-        ///<summary>Determines if one turn is a greater or equal counter-clockwise rotation than another.</summary>
-        public static bool operator >=(Turn turn1, Turn turn2) {
-            return turn1._radians >= turn2._radians;
-        }
-        ///<summary>Determines if one turn is a lesser or equal counter-clockwise rotation than another.</summary>
-        public static bool operator <=(Turn turn1, Turn turn2) {
-            return turn1._radians <= turn2._radians;
-        }
         /// <summary>
         /// Determines if a turn is equivalent to another.
         /// Note that the count of full rotations matters.
@@ -171,7 +172,7 @@ namespace Angle {
         /// </summary>
         [Pure]
         public bool Equals(Turn other, Turn tolerance) {
-            return (this - other).Abs() <= tolerance.Abs();
+            return !(this - other).IsMoreRotationThan(tolerance);
         }
         ///<summary>Compares the two given rotations, with "more counter-clockwise" corresponding to "larger".</summary>
         public int CompareTo(Turn other) {
@@ -186,9 +187,9 @@ namespace Angle {
         public override string ToString() {
             if (this == Zero) return "0 turns";
             return String.Format(
-                "{0:0.###} turns {1}",
+                "{0:0.###} {1} turns",
                 Math.Abs(this/OneTurnCounterClockwise),
-                this.Sign() == OneTurnClockwise.Sign() ? "clockwise" : "counterclockwise");
+                _radians >= 0 ? "clockwise" : "counterclockwise");
         }
     }
 }

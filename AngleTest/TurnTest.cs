@@ -1,4 +1,5 @@
-﻿using Angle;
+﻿using System;
+using Angle;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 [TestClass]
@@ -24,10 +25,12 @@ public class TurnTest {
                 var g2 = r[j];
                 foreach (var e1 in g1) {
                     foreach (var e2 in g2) {
-                        Assert.AreEqual(i < j, e1 < e2);
-                        Assert.AreEqual(i > j, e1 > e2);
-                        Assert.AreEqual(i <= j, e1 <= e2);
-                        Assert.AreEqual(i >= j, e1 >= e2);
+                        Assert.AreEqual(e1.CompareTo(e2), Turn.CounterClockwiseComparer.Compare(e1, e2));
+                        Assert.AreEqual(e2.CompareTo(e1), Turn.ClockwiseComparer.Compare(e1, e2));
+                        Assert.AreEqual(Math.Abs(e1.NaturalAngle).CompareTo(Math.Abs(e2.NaturalAngle)), Turn.AbsoluteRotationComparer.Compare(e1, e2));
+                        Assert.AreEqual(Math.Abs(e1.NaturalAngle) > Math.Abs(e2.NaturalAngle), e1.IsMoreRotationThan(e2));
+                        Assert.AreEqual(i < j, e1.IsMoreClockwiseThan(e2));
+                        Assert.AreEqual(i > j, e1.IsMoreCounterClockwiseThan(e2));
                         Assert.AreEqual(i != j, e1 != e2);
                         Assert.AreEqual(i == j, e1 == e2);
                         Assert.AreEqual(i == j, e1.Equals(e2));
@@ -65,7 +68,6 @@ public class TurnTest {
         Assert.IsTrue(2 * Turn.FromNaturalAngle(1) == Turn.FromNaturalAngle(2));
         Assert.IsTrue(Turn.FromNaturalAngle(1) / 2 == Turn.FromNaturalAngle(0.5));
         Assert.IsTrue(Turn.FromNaturalAngle(1) / Turn.FromNaturalAngle(2) == 0.5);
-        Assert.IsTrue(Turn.FromNaturalAngle(3) % Turn.FromNaturalAngle(2) == Turn.FromNaturalAngle(1));
         Assert.IsTrue(-Turn.FromNaturalAngle(3) == Turn.FromNaturalAngle(-3));
     }
     [TestMethod]
@@ -89,15 +91,22 @@ public class TurnTest {
     }
     [TestMethod]
     public void Abs() {
-        Assert.IsTrue(Turn.Zero.Abs() == Turn.Zero);
-        Assert.IsTrue(Turn.OneTurnCounterClockwise.Abs() == Turn.OneTurnCounterClockwise);
-        Assert.IsTrue(Turn.OneTurnClockwise.Abs() == Turn.OneTurnCounterClockwise);
+        Assert.IsTrue(Turn.Zero.AbsCounterClockwise() == Turn.Zero);
+        Assert.IsTrue(Turn.OneTurnCounterClockwise.AbsCounterClockwise() == Turn.OneTurnCounterClockwise);
+        Assert.IsTrue(Turn.OneTurnClockwise.AbsCounterClockwise() == Turn.OneTurnCounterClockwise);
+
+        Assert.IsTrue(Turn.Zero.AbsClockwise() == Turn.Zero);
+        Assert.IsTrue(Turn.OneTurnCounterClockwise.AbsClockwise() == Turn.OneTurnClockwise);
+        Assert.IsTrue(Turn.OneTurnClockwise.AbsClockwise() == Turn.OneTurnClockwise);
     }
     [TestMethod]
     public void Sign() {
-        Assert.IsTrue(Turn.Zero.Sign() == 0);
-        Assert.IsTrue(Turn.OneTurnCounterClockwise.Sign() == +1);
-        Assert.IsTrue(Turn.OneTurnClockwise.Sign() == -1);
+        Assert.IsTrue(!Turn.Zero.IsClockwise);
+        Assert.IsTrue(!Turn.Zero.IsCounterClockwise);
+        Assert.IsTrue(!Turn.OneTurnCounterClockwise.IsClockwise);
+        Assert.IsTrue(Turn.OneTurnCounterClockwise.IsCounterClockwise);
+        Assert.IsTrue(Turn.OneTurnClockwise.IsClockwise);
+        Assert.IsTrue(!Turn.OneTurnClockwise.IsCounterClockwise);
     }
     [TestMethod]
     public void ToStringWorks() {
