@@ -2,7 +2,7 @@
 using System.Diagnostics;
 using System.Diagnostics.Contracts;
 
-namespace Angle {
+namespace Strilanc.Angle {
     /// <summary>
     /// A 2-dimensional direction on the XY plane.
     /// Isomorphic to a point on the unit circle.

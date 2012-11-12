@@ -1,4 +1,4 @@
-﻿using Angle;
+﻿using Strilanc.Angle
 using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 

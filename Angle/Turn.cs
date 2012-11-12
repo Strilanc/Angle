@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.Contracts;
 
-namespace Angle {
+namespace Strilanc.Angle {
     /// <summary>
     /// An amount to rotate by.
     /// The 'delta' in the affine space of angles.

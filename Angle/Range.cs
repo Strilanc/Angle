@@ -2,7 +2,7 @@
 using System.Diagnostics;
 using System.Diagnostics.Contracts;
 
-namespace Angle {
+namespace Strilanc.Angle {
     [DebuggerDisplay("{ToString()}")]
     public struct Range : IEquatable<Range> {
         public static readonly Range AllDirections = new Range(Dir.AlongPositiveX, Turn.OneTurnCounterClockwise);

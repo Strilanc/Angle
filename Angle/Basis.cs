@@ -2,7 +2,7 @@
 using System.Diagnostics;
 using System.Diagnostics.Contracts;
 
-namespace Angle {
+namespace Strilanc.Angle {
     /// <summary>
     /// A system of angles, determining the size and clockwise-ness of the angular units and the direction of the zero angle.
     /// Used for translating raw angle values to and from invariant directions (Dir) and rotations (Turn).

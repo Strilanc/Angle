@@ -1,9 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
-using Angle;
+using Strilanc.Angle;
 
 namespace AngleExample {
     /// <summary>
@@ -97,11 +96,6 @@ namespace AngleExample {
                 tankPos.X += tankDir.UnitX * displacement;
                 tankPos.Y += tankDir.UnitY * displacement;
             }
-        }
-    }
-    internal static class ComparableUtil {
-        public static T MinBy<T>(this T value1, T value2, IComparer<T> comparer) {
-            return comparer.Compare(value1, value2) <= 0 ? value1 : value2;
         }
     }
 }

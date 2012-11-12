@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.Contracts;
 
-namespace Angle {
+namespace Strilanc.Angle {
     internal static class InternalUtil {
         ///<summary>Returns the smallest non-negative remainder that results from dividing the given value by the given divisor.</summary>
         public static double ProperMod(this double value, double divisor) {
