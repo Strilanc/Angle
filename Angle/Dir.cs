@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Diagnostics.Contracts;
 
 namespace Strilanc.Angle {
     /// <summary>
@@ -63,18 +62,15 @@ namespace Strilanc.Angle {
         /// </summary>
         public double SignedNaturalAngle { get { return _radians.DifMod(Basis.RadiansPerRotation); } }
         ///<summary>Returns the smallest non-negative angle corresponding to this direction in the given basis.</summary>
-        [Pure]
         public double GetUnsignedAngle(Basis basis) {
             return basis.DirToUnsignedAngle(this);
         }
         ///<summary>Returns the smallest positive or negative angle corresponding to this direction in the given basis.</summary>
-        [Pure]
         public double GetSignedAngle(Basis basis) {
             return basis.DirToSignedAngle(this);
         }
         
         ///<summary>Forces this direction to be inside the given range, rotating it by as little as possible.</summary>
-        [Pure]
         public Dir ClampedInside(Range range) {
             return range.Clamp(this);
         }
@@ -105,7 +101,6 @@ namespace Strilanc.Angle {
             return this == other;
         }
         ///<summary>Determines if two directions are equivalent, within a tolerance.</summary>
-        [Pure]
         public bool Equals(Dir other, Turn tolerance) {
             return (this - other).MinimumCongruentTurn().Equals(Turn.Zero, tolerance);
         }

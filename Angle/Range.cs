@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Diagnostics.Contracts;
 
 namespace Strilanc.Angle {
     [DebuggerDisplay("{ToString()}")]
@@ -74,22 +73,18 @@ namespace Strilanc.Angle {
         public Dir Center { get { return _start + _span/2; } }
         
         ///<summary>Returns the inverse range, which includes directions not in this range and excludes directions in this range (except the end points are shared).</summary>
-        [Pure]
         public Range Inverse() {
             return new Range(_start + _span, Turn.OneTurnCounterClockwise - _span);
         }
         ///<summary>Determines if a given direction is in this range.</summary>
-        [Pure]
         public bool Contains(Dir direction) {
             return !(direction - _start).MinimumCongruentCounterClockwiseTurn().IsMoreCounterClockwiseThan(_span);
         }
         ///<summary>Returns the clockwise or counter-clockwise side of this range, depending on the given parameter.</summary>
-        [Pure]
         public Dir Side(bool clockwiseSide) {
             return clockwiseSide ? ClockwiseSide : CounterClockwiseSide;
         }
         ///<summary>Forces the given direction to be inside this range, rotating it by as little as possible.</summary>
-        [Pure]
         public Dir Clamp(Dir direction) {
             var d = (direction - Center).MinimumCongruentTurn();
             if (!d.IsMoreRotationThan(_span / 2)) return direction;
@@ -119,7 +114,6 @@ namespace Strilanc.Angle {
                 && _span.Equals(other._span);
         }
         ///<summary>Determines if two ranges are equivalent, within some tolerance. Note that two 'all directions' ranges are only equal if they have the same center.</summary>
-        [Pure]
         public bool Equals(Range other, Turn tolerance) {
             return _start.Equals(other._start, tolerance) 
                 && _span.Equals(other._span, tolerance);

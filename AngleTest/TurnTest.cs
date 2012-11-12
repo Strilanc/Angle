@@ -1,5 +1,5 @@
 ﻿using System;
-using Strilanc.Angle
+using Strilanc.Angle;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 [TestClass]

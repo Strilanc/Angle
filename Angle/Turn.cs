@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Diagnostics.Contracts;
 
 namespace Strilanc.Angle {
     /// <summary>
@@ -63,27 +62,22 @@ namespace Strilanc.Angle {
         }
         
         ///<summary>The smallest turn (by magnitude) with an equivalent effect on directions.</summary>
-        [Pure]
         public Turn MinimumCongruentTurn() {
             return new Turn(_radians.DifMod(Basis.RadiansPerRotation));
         }
         ///<summary>The smallest counter-clockwise turn with an equivalent effect on directions.</summary>
-        [Pure]
         public Turn MinimumCongruentCounterClockwiseTurn() {
             return new Turn(_radians.ProperMod(Basis.RadiansPerRotation));
         }
         ///<summary>The smallest clockwise turn with an equivalent effect on directions.</summary>
-        [Pure]
         public Turn MininmumCongruentClockwiseTurn() {
             return new Turn(-(-_radians).ProperMod(Basis.RadiansPerRotation));
         }
         ///<summary>Returns a counter-clockwise rotation with the same magnitude.</summary>
-        [Pure]
         public Turn AbsCounterClockwise() {
             return _radians >= 0 ? this : -this;
         }
         ///<summary>Returns a clockwise rotation with the same magnitude.</summary>
-        [Pure]
         public Turn AbsClockwise() {
             return _radians <= 0 ? this : -this;
         }
@@ -94,7 +88,6 @@ namespace Strilanc.Angle {
         ///For example, the clockwise-ness of the result of clamping a three-quarters clockwise turn to 1 degree is determined by this parameter.
         ///The result is counter-clockwise when useMinimumCongruent is true (because the turn becomes a quarter counter-clockwise turn), and clockwise when it is true.
         ///</param>
-        [Pure]
         public Turn ClampMagnitude(Turn maxMagnitude, bool useMinimumCongruent = true) {
             if (useMinimumCongruent) return this.MinimumCongruentTurn().ClampMagnitude(maxMagnitude, false);
             return this.IsMoreRotationThan(maxMagnitude)
@@ -136,17 +129,14 @@ namespace Strilanc.Angle {
         public bool IsClockwise { get { return _radians < 0; } }
 
         ///<summary>Determines if this turn represents more clockwise (fewer counter-clockwise) rotations than the given turn.</summary>
-        [Pure]
         public bool IsMoreClockwiseThan(Turn other) {
             return _radians < other._radians;
         }
         ///<summary>Determines if this turn represents more counter-clockwise (fewer clockwise) rotations than the given turn.</summary>
-        [Pure]
         public bool IsMoreCounterClockwiseThan(Turn other) {
             return _radians > other._radians;
         }
         ///<summary>Determines if this turn represents more absolute rotation, either clockwise or counter-clockwise, than the given turn.</summary>
-        [Pure]
         public bool IsMoreRotationThan(Turn other) {
             return Math.Abs(_radians) > Math.Abs(other._radians);
         }
@@ -189,7 +179,6 @@ namespace Strilanc.Angle {
         /// The maximum difference between the compared turns.
         /// Can be clockwise or counter-clockwise (-tolerance has the same effect as +tolerance).
         /// </param>
-        [Pure]
         public bool Equals(Turn other, Turn tolerance) {
             return !(this - other).IsMoreRotationThan(tolerance);
         }
@@ -202,7 +191,6 @@ namespace Strilanc.Angle {
         /// The maximum difference between the rotating effects of the compared turns.
         /// Can be clockwise or counter-clockwise (-tolerance has the same effect as +tolerance).
         /// </param>
-        [Pure]
         public bool IsCongruentTo(Turn other, Turn tolerance = default(Turn)) {
             return !(this - other).MinimumCongruentTurn().IsMoreRotationThan(tolerance);
         }

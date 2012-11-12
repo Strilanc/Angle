@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Diagnostics.Contracts;
 
 namespace Strilanc.Angle {
     /// <summary>
@@ -49,31 +48,26 @@ namespace Strilanc.Angle {
         public bool IsClockwisePositive { get { return CounterClockwiseRadiansPerUnit < 0; } }
 
         ///<summary>Returns the direction corresponding to the given angle in this basis.</summary>
-        [Pure]
         public Dir AngleToDir(double angle) {
             if (double.IsNaN(angle)) throw new ArgumentOutOfRangeException("angle", "angle is NaN");
             if (double.IsInfinity(angle)) throw new ArgumentOutOfRangeException("angle", "angle is infinite");
             return Dir.FromNaturalAngle(Origin + angle * CounterClockwiseRadiansPerUnit);
         }
         ///<summary>Returns the turn corresponding to a rotation by the given angle in this basis.</summary>
-        [Pure]
         public Turn AngleToTurn(double angle) {
             return Turn.FromAngle(angle, this);
         }
         ///<summary>Returns the smallest non-negative angle corresponding to the given direction in this basis.</summary>
-        [Pure]
         public double DirToUnsignedAngle(Dir direction) {
             var r = (direction.UnsignedNaturalAngle - Origin) / CounterClockwiseRadiansPerUnit;
             return r.ProperMod(Math.Abs(UnitsPerCounterClockwiseTurn));
         }
         ///<summary>Returns the smallest positive or negative angle corresponding to the given direction in this basis.</summary>
-        [Pure]
         public double DirToSignedAngle(Dir direction) {
             var r = (direction.UnsignedNaturalAngle - Origin) / CounterClockwiseRadiansPerUnit;
             return r.DifMod(Math.Abs(UnitsPerCounterClockwiseTurn));
         }
         ///<summary>Returns the angle corresponding to a rotation by the given turn in this basis.</summary>
-        [Pure]
         public double TurnToAngle(Turn turn) {
             return turn.GetAngle(this);
         }
