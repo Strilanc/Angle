@@ -26,8 +26,8 @@ public class RangeTest {
                 Assert.IsTrue(range.Side(clockwiseSide: false).Equals(cc.Value));
                 Assert.IsTrue(range.ClockwiseSide.Equals(c.Value));
                 Assert.IsTrue(range.Side(clockwiseSide: true).Equals(c.Value));
-                Assert.IsTrue(range.Span == (cc.Value - c.Value).SmallestCounterClockwiseEquivalent());
-                Assert.IsTrue(range.Center.Equals(c.Value + (cc.Value - c.Value).SmallestCounterClockwiseEquivalent() / 2, eps));
+                Assert.IsTrue(range.Span == (cc.Value - c.Value).MinimumCongruentCounterClockwiseTurn());
+                Assert.IsTrue(range.Center.Equals(c.Value + (cc.Value - c.Value).MinimumCongruentCounterClockwiseTurn() / 2, eps));
             }
         };
         check(Range.AllDirections, null, null, new[] { pp, pn, np, nn, px, py, nx, ny });

@@ -37,7 +37,6 @@ namespace Angle {
         }
         ///<summary>Returns the direction along the given displacement.</summary>
         public static Dir FromVector(double dx, double dy) {
-            if (dx == 0 && dy == 0) throw new ArgumentOutOfRangeException("dy", "dx == 0 and dy == 0");
             return FromNaturalAngle(Math.Atan2(dy, dx));
         }
         ///<summary>Returns the direction corresponding to the given angle in the given basis.</summary>
@@ -108,7 +107,7 @@ namespace Angle {
         ///<summary>Determines if two directions are equivalent, within a tolerance.</summary>
         [Pure]
         public bool Equals(Dir other, Turn tolerance) {
-            return (this - other).SmallestSignedEquivalent().Equals(Turn.Zero, tolerance);
+            return (this - other).MinimumCongruentTurn().Equals(Turn.Zero, tolerance);
         }
         public override bool Equals(object obj) {
             return obj is Dir && Equals((Dir)obj);

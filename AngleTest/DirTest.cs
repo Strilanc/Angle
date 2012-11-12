@@ -103,7 +103,7 @@ public class DirTest {
         Assert.AreEqual(Dir.FromVector(1, double.NegativeInfinity).UnsignedNaturalAngle, 3 * Math.PI / 2, 0.0001);
 
         // invalid cases
-        AssertThrows<ArgumentException>(() => Dir.FromVector(0, 0));
+        Assert.IsTrue(Dir.FromVector(0, 0).SignedNaturalAngle == 0);
         AssertThrows<ArgumentException>(() => Dir.FromVector(double.NaN, 0));
         AssertThrows<ArgumentException>(() => Dir.FromVector(0, double.NaN));
         AssertThrows<ArgumentException>(() => Dir.FromVector(double.NegativeInfinity, double.PositiveInfinity));

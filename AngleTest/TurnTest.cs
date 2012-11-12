@@ -75,7 +75,9 @@ public class TurnTest {
         Assert.IsTrue(!(Turn.OneTurnClockwise * 0.1).IsCongruentTo(Turn.OneTurnClockwise * 0.0999));
         Assert.IsTrue((Turn.OneTurnClockwise * 0.1).IsCongruentTo(Turn.OneTurnClockwise * 0.0999, Turn.OneTurnClockwise * 0.01));
         Assert.IsTrue(Turn.OneDegreeClockwise.IsCongruentTo(Turn.OneDegreeCounterClockwise, Turn.OneDegreeClockwise * 2));
+        Assert.IsTrue(!Turn.OneDegreeClockwise.IsCongruentTo(Turn.OneDegreeCounterClockwise, Turn.OneDegreeCounterClockwise * 1));
         Assert.IsTrue(Turn.OneDegreeClockwise.IsCongruentTo(Turn.OneDegreeCounterClockwise, Turn.OneDegreeCounterClockwise * 2));
+        Assert.IsTrue(Turn.OneDegreeClockwise.IsCongruentTo(Turn.OneDegreeCounterClockwise, Turn.OneDegreeCounterClockwise * 3));
     }
     [TestMethod]
     public void NaturalAngle() {
@@ -97,23 +99,53 @@ public class TurnTest {
         Assert.IsTrue(-Turn.FromNaturalAngle(3) == Turn.FromNaturalAngle(-3));
     }
     [TestMethod]
-    public void SmallestEquivalent() {
-        Assert.IsTrue(Turn.Zero.Equals(Turn.OneTurnClockwise.SmallestClockwiseEquivalent()));
-        Assert.IsTrue(Turn.Zero.Equals(Turn.OneTurnClockwise.SmallestCounterClockwiseEquivalent()));
-        Assert.IsTrue(Turn.Zero.Equals(Turn.OneTurnClockwise.SmallestSignedEquivalent()));
+    public void Clamp() {
+        // single turns clamped to single degrees
+        Assert.IsTrue(Turn.OneTurnClockwise.ClampMagnitude(Turn.OneDegreeClockwise, useMinimumCongruent: false).Equals(Turn.OneDegreeClockwise));
+        Assert.IsTrue(Turn.OneTurnClockwise.ClampMagnitude(Turn.OneDegreeCounterClockwise, useMinimumCongruent: false).Equals(Turn.OneDegreeClockwise));
+        Assert.IsTrue(Turn.OneTurnCounterClockwise.ClampMagnitude(Turn.OneDegreeClockwise, useMinimumCongruent: false).Equals(Turn.OneDegreeCounterClockwise));
+        Assert.IsTrue(Turn.OneTurnCounterClockwise.ClampMagnitude(Turn.OneDegreeCounterClockwise, useMinimumCongruent: false).Equals(Turn.OneDegreeCounterClockwise));
 
-        Assert.IsTrue(Turn.Zero.Equals(Turn.OneTurnCounterClockwise.SmallestClockwiseEquivalent()));
-        Assert.IsTrue(Turn.Zero.Equals(Turn.OneTurnCounterClockwise.SmallestCounterClockwiseEquivalent()));
-        Assert.IsTrue(Turn.Zero.Equals(Turn.OneTurnCounterClockwise.SmallestSignedEquivalent()));
+        // single turn congruent to zero
+        Assert.IsTrue(Turn.OneTurnClockwise.ClampMagnitude(Turn.OneDegreeClockwise, useMinimumCongruent: true).Equals(Turn.Zero));
+        Assert.IsTrue(Turn.OneTurnCounterClockwise.ClampMagnitude(Turn.OneDegreeClockwise, useMinimumCongruent: true).Equals(Turn.Zero));
+
+        // congruence flips stuff near one turn
+        Assert.IsTrue((Turn.OneTurnClockwise + Turn.OneRadianClockwise).ClampMagnitude(Turn.OneDegreeClockwise, useMinimumCongruent: true).Equals(Turn.OneDegreeClockwise));
+        Assert.IsTrue((Turn.OneTurnClockwise - Turn.OneRadianClockwise).ClampMagnitude(Turn.OneDegreeClockwise, useMinimumCongruent: true).Equals(Turn.OneDegreeCounterClockwise));
+        Assert.IsTrue((Turn.OneTurnClockwise + Turn.OneRadianClockwise).ClampMagnitude(Turn.OneDegreeClockwise, useMinimumCongruent: false).Equals(Turn.OneDegreeClockwise));
+        Assert.IsTrue((Turn.OneTurnClockwise - Turn.OneRadianClockwise).ClampMagnitude(Turn.OneDegreeClockwise, useMinimumCongruent: false).Equals(Turn.OneDegreeClockwise));
+
+        // congruence flips slightly-more-than-half turns
+        Assert.IsTrue((Turn.OneTurnClockwise * 0.6).ClampMagnitude(Turn.OneTurnClockwise * 0.25, useMinimumCongruent: true).Equals(Turn.OneTurnClockwise * -0.25));
+        Assert.IsTrue((Turn.OneTurnClockwise * -0.6).ClampMagnitude(Turn.OneTurnClockwise * 0.25, useMinimumCongruent: true).Equals(Turn.OneTurnClockwise * 0.25));
+        Assert.IsTrue((Turn.OneTurnClockwise * 0.6).ClampMagnitude(Turn.OneTurnClockwise * 0.25, useMinimumCongruent: false).Equals(Turn.OneTurnClockwise * 0.25));
+        Assert.IsTrue((Turn.OneTurnClockwise * -0.6).ClampMagnitude(Turn.OneTurnClockwise * 0.25, useMinimumCongruent: false).Equals(Turn.OneTurnClockwise * -0.25));
+
+        // congruence leaves less-than-half turns unaffected
+        Assert.IsTrue((Turn.OneTurnClockwise * 0.4).ClampMagnitude(Turn.OneTurnClockwise * 0.25, useMinimumCongruent: true).Equals(Turn.OneTurnClockwise * 0.25));
+        Assert.IsTrue((Turn.OneTurnClockwise * -0.4).ClampMagnitude(Turn.OneTurnClockwise * 0.25, useMinimumCongruent: true).Equals(Turn.OneTurnClockwise * -0.25));
+        Assert.IsTrue((Turn.OneTurnClockwise * 0.4).ClampMagnitude(Turn.OneTurnClockwise * 0.25, useMinimumCongruent: false).Equals(Turn.OneTurnClockwise * 0.25));
+        Assert.IsTrue((Turn.OneTurnClockwise * -0.4).ClampMagnitude(Turn.OneTurnClockwise * 0.25, useMinimumCongruent: false).Equals(Turn.OneTurnClockwise * -0.25));
+    }
+    [TestMethod]
+    public void SmallestEquivalent() {
+        Assert.IsTrue(Turn.Zero.Equals(Turn.OneTurnClockwise.MininmumCongruentClockwiseTurn()));
+        Assert.IsTrue(Turn.Zero.Equals(Turn.OneTurnClockwise.MinimumCongruentCounterClockwiseTurn()));
+        Assert.IsTrue(Turn.Zero.Equals(Turn.OneTurnClockwise.MinimumCongruentTurn()));
+
+        Assert.IsTrue(Turn.Zero.Equals(Turn.OneTurnCounterClockwise.MininmumCongruentClockwiseTurn()));
+        Assert.IsTrue(Turn.Zero.Equals(Turn.OneTurnCounterClockwise.MinimumCongruentCounterClockwiseTurn()));
+        Assert.IsTrue(Turn.Zero.Equals(Turn.OneTurnCounterClockwise.MinimumCongruentTurn()));
 
         var eps = Turn.FromNaturalAngle(0.0001);
-        Assert.IsFalse(Turn.FromNaturalAngle(1).Equals(Turn.FromNaturalAngle(1 + Basis.RadiansPerRotation).SmallestClockwiseEquivalent(), eps));
-        Assert.IsTrue(Turn.FromNaturalAngle(1).Equals(Turn.FromNaturalAngle(1 + Basis.RadiansPerRotation).SmallestCounterClockwiseEquivalent(), eps));
-        Assert.IsTrue(Turn.FromNaturalAngle(1).Equals(Turn.FromNaturalAngle(1 + Basis.RadiansPerRotation).SmallestSignedEquivalent(), eps));
+        Assert.IsFalse(Turn.FromNaturalAngle(1).Equals(Turn.FromNaturalAngle(1 + Basis.RadiansPerRotation).MininmumCongruentClockwiseTurn(), eps));
+        Assert.IsTrue(Turn.FromNaturalAngle(1).Equals(Turn.FromNaturalAngle(1 + Basis.RadiansPerRotation).MinimumCongruentCounterClockwiseTurn(), eps));
+        Assert.IsTrue(Turn.FromNaturalAngle(1).Equals(Turn.FromNaturalAngle(1 + Basis.RadiansPerRotation).MinimumCongruentTurn(), eps));
 
-        Assert.IsTrue(Turn.FromNaturalAngle(-1).Equals(Turn.FromNaturalAngle(-1 + Basis.RadiansPerRotation).SmallestClockwiseEquivalent(), eps));
-        Assert.IsFalse(Turn.FromNaturalAngle(-1).Equals(Turn.FromNaturalAngle(-1 + Basis.RadiansPerRotation).SmallestCounterClockwiseEquivalent(), eps));
-        Assert.IsTrue(Turn.FromNaturalAngle(-1).Equals(Turn.FromNaturalAngle(-1 + Basis.RadiansPerRotation).SmallestSignedEquivalent(), eps));
+        Assert.IsTrue(Turn.FromNaturalAngle(-1).Equals(Turn.FromNaturalAngle(-1 + Basis.RadiansPerRotation).MininmumCongruentClockwiseTurn(), eps));
+        Assert.IsFalse(Turn.FromNaturalAngle(-1).Equals(Turn.FromNaturalAngle(-1 + Basis.RadiansPerRotation).MinimumCongruentCounterClockwiseTurn(), eps));
+        Assert.IsTrue(Turn.FromNaturalAngle(-1).Equals(Turn.FromNaturalAngle(-1 + Basis.RadiansPerRotation).MinimumCongruentTurn(), eps));
     }
     [TestMethod]
     public void Abs() {

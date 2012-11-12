@@ -5,6 +5,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Angle", "Angle\Angle.csproj
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AngleTest", "AngleTest\AngleTest.csproj", "{F9468934-DC87-4685-B700-9B4ABE2500AD}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AngleExample", "AngleExample\AngleExample.csproj", "{BF78BCD1-F9AA-4710-B16C-CA7F61AC5894}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -19,6 +21,10 @@ Global
 		{F9468934-DC87-4685-B700-9B4ABE2500AD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F9468934-DC87-4685-B700-9B4ABE2500AD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F9468934-DC87-4685-B700-9B4ABE2500AD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BF78BCD1-F9AA-4710-B16C-CA7F61AC5894}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BF78BCD1-F9AA-4710-B16C-CA7F61AC5894}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BF78BCD1-F9AA-4710-B16C-CA7F61AC5894}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BF78BCD1-F9AA-4710-B16C-CA7F61AC5894}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

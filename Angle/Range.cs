@@ -28,7 +28,7 @@ namespace Angle {
         /// </summary>
         public static Range FromStartToFinish(Dir start, Dir finish, bool moveClockwise) {
             if (moveClockwise) return FromStartToFinish(finish, start, false);
-            return new Range(start, (finish - start).SmallestCounterClockwiseEquivalent());
+            return new Range(start, (finish - start).MinimumCongruentCounterClockwiseTurn());
         }
         ///<summary>Returns a range corresponding to the directions that can be reached by starting from the given center direction and turning up to the given maximum (in either direction).</summary>
         public static Range FromCenterAndMaxDeviation(Dir center, Turn absMaxDeviation) {
@@ -81,7 +81,7 @@ namespace Angle {
         ///<summary>Determines if a given direction is in this range.</summary>
         [Pure]
         public bool Contains(Dir direction) {
-            return !(direction - _start).SmallestCounterClockwiseEquivalent().IsMoreCounterClockwiseThan(_span);
+            return !(direction - _start).MinimumCongruentCounterClockwiseTurn().IsMoreCounterClockwiseThan(_span);
         }
         ///<summary>Returns the clockwise or counter-clockwise side of this range, depending on the given parameter.</summary>
         [Pure]
@@ -91,7 +91,7 @@ namespace Angle {
         ///<summary>Forces the given direction to be inside this range, rotating it by as little as possible.</summary>
         [Pure]
         public Dir Clamp(Dir direction) {
-            var d = (direction - Center).SmallestSignedEquivalent();
+            var d = (direction - Center).MinimumCongruentTurn();
             if (!d.IsMoreRotationThan(_span / 2)) return direction;
             return Side(d.IsClockwise);
         }

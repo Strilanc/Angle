@@ -64,17 +64,17 @@ namespace Angle {
         
         ///<summary>The smallest turn (by magnitude) with an equivalent effect on directions.</summary>
         [Pure]
-        public Turn SmallestSignedEquivalent() {
+        public Turn MinimumCongruentTurn() {
             return new Turn(_radians.DifMod(Basis.RadiansPerRotation));
         }
         ///<summary>The smallest counter-clockwise turn with an equivalent effect on directions.</summary>
         [Pure]
-        public Turn SmallestCounterClockwiseEquivalent() {
+        public Turn MinimumCongruentCounterClockwiseTurn() {
             return new Turn(_radians.ProperMod(Basis.RadiansPerRotation));
         }
         ///<summary>The smallest clockwise turn with an equivalent effect on directions.</summary>
         [Pure]
-        public Turn SmallestClockwiseEquivalent() {
+        public Turn MininmumCongruentClockwiseTurn() {
             return new Turn(-(-_radians).ProperMod(Basis.RadiansPerRotation));
         }
         ///<summary>Returns a counter-clockwise rotation with the same magnitude.</summary>
@@ -86,6 +86,20 @@ namespace Angle {
         [Pure]
         public Turn AbsClockwise() {
             return _radians <= 0 ? this : -this;
+        }
+        ///<summary>Clamps the turn's magnitude to be at most the given magnitude, clockwise or counter-clockwise</summary>
+        ///<param name="maxMagnitude">The maximum magnitude that the turn is limited to.</param>
+        ///<param name="useMinimumCongruent">
+        ///Determines if 'MinimumCongruentTurn' is applied to the input before clamping.
+        ///For example, the clockwise-ness of the result of clamping a three-quarters clockwise turn to 1 degree is determined by this parameter.
+        ///The result is counter-clockwise when useMinimumCongruent is true (because the turn becomes a quarter counter-clockwise turn), and clockwise when it is true.
+        ///</param>
+        [Pure]
+        public Turn ClampMagnitude(Turn maxMagnitude, bool useMinimumCongruent = true) {
+            if (useMinimumCongruent) return this.MinimumCongruentTurn().ClampMagnitude(maxMagnitude, false);
+            return this.IsMoreRotationThan(maxMagnitude)
+                 ? maxMagnitude * Math.Sign(this._radians * maxMagnitude._radians)
+                 : this;
         }
 
         ///<summary>Returns a turn equivalent to applying both given turns.</summary>
@@ -190,7 +204,7 @@ namespace Angle {
         /// </param>
         [Pure]
         public bool IsCongruentTo(Turn other, Turn tolerance = default(Turn)) {
-            return !(this - other).SmallestSignedEquivalent().IsMoreRotationThan(tolerance);
+            return !(this - other).MinimumCongruentTurn().IsMoreRotationThan(tolerance);
         }
 
         public override bool Equals(object obj) {
