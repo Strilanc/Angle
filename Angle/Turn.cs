@@ -5,7 +5,7 @@ using System.Diagnostics;
 namespace Strilanc.Angle {
     /// <summary>
     /// An amount to rotate by.
-    /// The 'delta' in the affine space of angles.
+    /// The 'delta' in the affine space of angles, augmented with an implicit winding number.
     /// </summary>
     [DebuggerDisplay("{ToString()}")]
     public struct Turn : IEquatable<Turn> {
@@ -206,7 +206,7 @@ namespace Strilanc.Angle {
             return String.Format(
                 "{0:0.###} {1} turns",
                 Math.Abs(this/OneTurnCounterClockwise),
-                _radians >= 0 ? "clockwise" : "counterclockwise");
+                _radians <= 0 ? "clockwise" : "counterclockwise");
         }
     }
 }
